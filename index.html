@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Survey — Your Digital Life</title>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --card: #ffffff;
+    --card-border: #e8e2d8;
+    --text: #2d2d2d;
+    --text-muted: #6b6560;
+    --accent: #1a8a7d;
+    --accent-hover: #157a6e;
+    --accent-light: #e0f2f0;
+    --highlight: #d4654a;
+    --chip-bg: #f0ece7;
+    --chip-selected: #1a8a7d;
+    --chip-selected-text: #fff;
+    --progress-bg: #e8e2d8;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1419; --card: #1a2028; --card-border: #2a3340;
+      --text: #e8e2d8; --text-muted: #8a94a8; --accent: #2db5a3;
+      --accent-hover: #25a08f; --accent-light: #132e2a; --highlight: #e07a5f;
+      --chip-bg: #232d38; --chip-selected: #2db5a3; --chip-selected-text: #0f1419;
+      --progress-bg: #232d38; --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+
+  /* Splash */
+  .splash {
+    position: fixed; inset: 0; background: #0a0f1a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 100; overflow: hidden; color: #fff;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .splash .glow-1 {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,181,163,0.25) 0%, transparent 70%);
+    top: 10%; left: -15%; filter: blur(60px);
+  }
+  .splash .glow-2 {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,101,74,0.2) 0%, transparent 70%);
+    bottom: 15%; right: -15%; filter: blur(60px);
+  }
+  .splash .glow-3 {
+    position: absolute; width: 350px; height: 350px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+    top: 50%; left: 25%; filter: blur(80px);
+  }
+  .splash-content {
+    position: relative; z-index: 1; text-align: center; padding: 0 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 28px; max-width: 520px;
+  }
+  .splash .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+  .splash .headline {
+    font-size: clamp(36px, 8vw, 56px); font-weight: 800;
+    line-height: 1.1; letter-spacing: -0.02em;
+  }
+  .splash .headline .accent {
+    background: linear-gradient(135deg, #2db5a3, #5ee0d0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .splash .sub {
+    font-size: clamp(15px, 3.5vw, 18px); line-height: 1.5;
+    color: rgba(255,255,255,0.55); max-width: 400px;
+  }
+  .splash .cta-btn {
+    padding: 16px 48px; border-radius: 100px;
+    background: linear-gradient(135deg, #2db5a3, #1a8a7d);
+    font-size: 17px; font-weight: 700; color: #fff; border: none;
+    cursor: pointer; font-family: inherit; margin-top: 8px;
+    transition: transform 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .splash .cta-btn:hover { transform: scale(1.03); }
+  .splash .cta-btn:active { transform: scale(0.98); }
+  .splash .cta-sub { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: -12px; }
+  .splash .line-top, .splash .line-bottom {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 2px; background: rgba(255,255,255,0.08);
+  }
+  .splash .line-top { top: 60px; }
+  .splash .line-bottom { bottom: 60px; }
+
+  /* Survey */
+  .survey-container { max-width: 520px; margin: 0 auto; padding: 24px 20px 40px; }
+  .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .progress-bar { flex: 1; height: 4px; background: var(--progress-bg); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+  .progress-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .step { display: none; animation: fadeIn 0.35s ease; }
+  .step.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-number { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .step h2 { font-size: 22px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; text-wrap: balance; }
+  .step .subtext { font-size: 15px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip {
+    padding: 10px 18px; border-radius: 100px; border: 1.5px solid var(--card-border);
+    background: var(--chip-bg); font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s ease; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.selected { background: var(--chip-selected); color: var(--chip-selected-text); border-color: var(--chip-selected); }
+  .chip-other-input { display: none; margin-top: 12px; margin-bottom: 16px; }
+  .chip-other-input.visible { display: block; }
+
+  .scale-row { display: flex; gap: 0; margin-bottom: 8px; border-radius: 12px; overflow: hidden; border: 1.5px solid var(--card-border); }
+  .scale-option {
+    flex: 1; padding: 14px 8px; text-align: center; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s ease; background: var(--card);
+    border-right: 1px solid var(--card-border); user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .scale-option:last-child { border-right: none; }
+  .scale-option:hover { background: var(--accent-light); }
+  .scale-option.selected { background: var(--accent); color: var(--chip-selected-text); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 28px; padding: 0 4px; }
+
+  .text-input {
+    width: 100%; padding: 14px 16px; border: 1.5px solid var(--card-border); border-radius: 12px;
+    background: var(--card); color: var(--text); font-size: 15px; font-family: inherit;
+    line-height: 1.5; resize: vertical; min-height: 48px; transition: border-color 0.15s; margin-bottom: 24px;
+  }
+  .text-input:focus { outline: none; border-color: var(--accent); }
+  .text-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+  .btn-row { display: flex; gap: 12px; margin-top: 8px; }
+  .btn {
+    padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.15s ease; border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary { background: var(--accent); color: #fff; flex: 1; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-back { background: var(--chip-bg); color: var(--text-muted); padding: 14px 20px; }
+  .btn-back:hover { background: var(--card-border); }
+
+  .finish-card {
+    background: var(--card); border: 1.5px solid var(--card-border); border-radius: 16px;
+    padding: 28px 24px; text-align: center; box-shadow: var(--shadow);
+  }
+  .finish-card h2 { font-size: 24px; margin-bottom: 8px; }
+  .finish-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 20px; line-height: 1.6; }
+  .btn-share {
+    background: var(--highlight); color: #fff; padding: 14px 28px; border-radius: 10px;
+    font-size: 15px; font-weight: 600; border: none; cursor: pointer; font-family: inherit;
+    transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-share:hover { opacity: 0.9; }
+  .copied-toast { display: none; font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 12px; }
+  .copied-toast.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Splash -->
+<div class="splash" id="splash">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+  <div class="glow-3"></div>
+  <div class="line-top"></div>
+  <div class="line-bottom"></div>
+  <div class="splash-content">
+    <div class="eyebrow">Quick survey</div>
+    <div class="headline">Your apps.<br>Your AI.<br><span class="accent">Your data.</span></div>
+    <div class="sub">I'm exploring something and need your honest take. 10 quick questions, under 2 minutes.</div>
+    <button class="cta-btn" onclick="startSurvey()">Let's go</button>
+    <div class="cta-sub">Takes under 2 min</div>
+  </div>
+</div>
+
+<!-- Survey -->
+<div class="survey-container">
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <span class="progress-label" id="progress-label"></span>
+  </div>
+
+  <div class="step" data-step="1">
+    <div class="step-number">1 of 10</div>
+    <h2>What do you use to track health or fitness?</h2>
+    <p class="subtext">Pick all that apply, or skip if none.</p>
+    <div class="chip-grid" data-q="health_tools">
+      <div class="chip" data-v="Apple Watch / Health">Apple Watch</div>
+      <div class="chip" data-v="Google Fit">Google Fit</div>
+      <div class="chip" data-v="Garmin">Garmin</div>
+      <div class="chip" data-v="Whoop">Whoop</div>
+      <div class="chip" data-v="Oura">Oura Ring</div>
+      <div class="chip" data-v="Fitbit">Fitbit</div>
+      <div class="chip" data-v="Samsung Health">Samsung</div>
+      <div class="chip" data-v="Nothing">Nothing</div>
+      <div class="chip" data-v="other">Other</div>
+    </div>
+    <input class="text-input chip-other-input" data-other="health_tools" placeholder="What else do you use?" />
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo(2)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="2">
+    <div class="step-number">2 of 10</div>
+    <h2>Where do your calendar, notes, and emails live?</h2>
+    <p class="subtext">All the apps where your plans and thoughts end up.</p>
+    <div class="chip-grid" data-q="prod_tools">
+      <div class="chip" data-v="Google Calendar">Google Calendar</div>
+      <div class="chip" data-v="Apple Calendar">Apple Calendar</div>
+      <div class="chip" data-v="Outlook">Outlook</div>
+      <div class="chip" data-v="Gmail">Gmail</div>
+      <div class="chip" data-v="Notion">Notion</div>
+      <div class="chip" data-v="Apple Notes">Apple Notes</div>
+      <div class="chip" data-v="Google Keep">Google Keep</div>
+      <div class="chip" data-v="other">Other</div>
+    </div>
+    <input class="text-input chip-other-input" data-other="prod_tools" placeholder="What else?" />
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(1)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="3">
+    <div class="step-number">3 of 10</div>
+    <h2>Which world do you mostly live in?</h2>
+    <p class="subtext">Your phone, laptop, cloud — the big picture.</p>
+    <div class="chip-grid" data-q="ecosystem" data-mode="single">
+      <div class="chip" data-v="Mostly Apple">Mostly Apple</div>
+      <div class="chip" data-v="Mostly Google">Mostly Google</div>
+      <div class="chip" data-v="Mostly Microsoft">Mostly Microsoft</div>
+      <div class="chip" data-v="Mixed — a bit of everything">Mixed</div>
+    </div>
+    <h2 style="font-size:18px;margin-top:4px">Does juggling between different ecosystems annoy you?</h2>
+    <div class="chip-grid" data-q="ecosystem_pain" data-mode="single" style="margin-top:16px">
+      <div class="chip" data-v="Yes, constantly">Yes, constantly</div>
+      <div class="chip" data-v="Sometimes">Sometimes</div>
+      <div class="chip" data-v="Not really">Not really</div>
+      <div class="chip" data-v="I stay in one ecosystem">I stay in one</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(2)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="4">
+    <div class="step-number">4 of 10</div>
+    <h2>Do you use any AI assistants?</h2>
+    <p class="subtext">For anything — work, personal, curiosity.</p>
+    <div class="chip-grid" data-q="ai_tools">
+      <div class="chip" data-v="ChatGPT">ChatGPT</div>
+      <div class="chip" data-v="Claude">Claude</div>
+      <div class="chip" data-v="Gemini">Gemini</div>
+      <div class="chip" data-v="Copilot">Copilot</div>
+      <div class="chip" data-v="Siri / Google Assistant">Siri / Google</div>
+      <div class="chip" data-v="Not really">Not really</div>
+      <div class="chip" data-v="other">Other</div>
+    </div>
+    <input class="text-input chip-other-input" data-other="ai_tools" placeholder="Which one?" />
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(3)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(5)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="5">
+    <div class="step-number">5 of 10</div>
+    <h2>When you ask AI something personal — about your day, health, or plans — how much backstory do you end up giving?</h2>
+    <div class="scale-row" data-q="context_effort">
+      <div class="scale-option" data-v="1">1</div>
+      <div class="scale-option" data-v="2">2</div>
+      <div class="scale-option" data-v="3">3</div>
+      <div class="scale-option" data-v="4">4</div>
+      <div class="scale-option" data-v="5">5</div>
+    </div>
+    <div class="scale-labels"><span>It just gets me</span><span>I re-explain everything, every time</span></div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(4)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(6)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="6">
+    <div class="step-number">6 of 10</div>
+    <h2>What if you could flip a switch and give your AI a factual summary of your health, schedule, and goals — not raw data — and turn it off whenever you want?</h2>
+    <div class="scale-row" data-q="interest_level">
+      <div class="scale-option" data-v="1">1</div>
+      <div class="scale-option" data-v="2">2</div>
+      <div class="scale-option" data-v="3">3</div>
+      <div class="scale-option" data-v="4">4</div>
+      <div class="scale-option" data-v="5">5</div>
+    </div>
+    <div class="scale-labels"><span>Meh</span><span>Need this yesterday</span></div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(5)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(7)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="7">
+    <div class="step-number">7 of 10</div>
+    <h2>If your AI already had that context, what's the first thing you'd ask it?</h2>
+    <p class="subtext">Pick what sounds most like you.</p>
+    <div class="chip-grid" data-q="first_ask">
+      <div class="chip" data-v="How should I plan my week?">"How should I plan my week?"</div>
+      <div class="chip" data-v="Am I actually sleeping enough?">"Am I sleeping enough?"</div>
+      <div class="chip" data-v="Help me stick to my fitness goal">"Help me with my fitness goal"</div>
+      <div class="chip" data-v="What should I focus on today?">"What should I focus on today?"</div>
+      <div class="chip" data-v="Remind me what I keep postponing">"What do I keep postponing?"</div>
+      <div class="chip" data-v="other">Something else</div>
+    </div>
+    <input class="text-input chip-other-input" data-other="first_ask" placeholder="What would you ask?" />
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(6)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(8)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="8">
+    <div class="step-number">8 of 10</div>
+    <h2>Would you actually connect 2-3 of your apps if it meant your AI conversations got noticeably more useful?</h2>
+    <div class="scale-row" data-q="connect_willingness">
+      <div class="scale-option" data-v="1">1</div>
+      <div class="scale-option" data-v="2">2</div>
+      <div class="scale-option" data-v="3">3</div>
+      <div class="scale-option" data-v="4">4</div>
+      <div class="scale-option" data-v="5">5</div>
+    </div>
+    <div class="scale-labels"><span>No way</span><span>Already looking for this</span></div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(7)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(9)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="9">
+    <div class="step-number">9 of 10</div>
+    <h2>What would need to be true for you to feel comfortable sharing personal data with an AI?</h2>
+    <p class="subtext">Pick everything that matters.</p>
+    <div class="chip-grid" data-q="trust_factors">
+      <div class="chip" data-v="Kill switch — turn it off anytime">Kill switch — off anytime</div>
+      <div class="chip" data-v="AI gets a summary, never raw data">Summary only, never raw data</div>
+      <div class="chip" data-v="I see exactly what AI receives">I see what AI sees</div>
+      <div class="chip" data-v="I can delete everything with one click">Delete everything, one click</div>
+      <div class="chip" data-v="My data stays encrypted">Data stays encrypted</div>
+      <div class="chip" data-v="No data sold, ever">No data sold, ever</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(8)">Back</button>
+      <button class="btn btn-primary" onclick="goTo(10)">Next</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="10">
+    <div class="step-number">10 of 10</div>
+    <h2>Last one — anything on your mind?</h2>
+    <p class="subtext">What frustrates you about your apps not talking to each other? Anything you wish AI could do better?</p>
+    <textarea class="text-input" data-q="open_text" rows="3" placeholder="Optional — say whatever comes to mind"></textarea>
+    <h2 style="margin-top:8px">Want to stay in the loop?</h2>
+    <p class="subtext">If I end up building something, I'll share it with you first.</p>
+    <input class="text-input" data-q="name" placeholder="Your name" />
+    <input class="text-input" data-q="contact" placeholder="Email or phone (optional)" />
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goTo(9)">Back</button>
+      <button class="btn btn-primary" onclick="finish()">Done</button>
+    </div>
+  </div>
+
+  <div class="step" data-step="11">
+    <div class="finish-card">
+      <div style="font-size:48px;margin-bottom:12px">&#10003;</div>
+      <h2>Thank you!</h2>
+      <p>This genuinely helps. I'll share what comes of it.</p>
+      <button class="btn-share" onclick="copyResults()">Copy answers to send to me</button>
+      <div class="copied-toast" id="toast">Copied! Send it my way.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+const answers = {};
+
+function startSurvey() {
+  document.getElementById('splash').classList.add('hidden');
+  goTo(1);
+}
+
+function goTo(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`[data-step="${n}"]`).classList.add('active');
+  const pw = document.getElementById('progress-wrap');
+  pw.style.display = 'flex';
+  document.getElementById('progress-fill').style.width = Math.round((Math.min(n, TOTAL) / TOTAL) * 100) + '%';
+  document.getElementById('progress-label').textContent = n <= TOTAL ? `${n}/${TOTAL}` : '';
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const grid = chip.closest('.chip-grid');
+    const q = grid.dataset.q, v = chip.dataset.v;
+    const isSingle = grid.dataset.mode === 'single';
+    if (isSingle) {
+      grid.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      answers[q] = [v];
+    } else if (v === 'Nothing' || v === 'Not really') {
+      grid.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      answers[q] = [v];
+    } else {
+      grid.querySelectorAll('.chip').forEach(c => {
+        if (c.dataset.v === 'Nothing' || c.dataset.v === 'Not really') c.classList.remove('selected');
+      });
+      chip.classList.toggle('selected');
+      answers[q] = [...grid.querySelectorAll('.chip.selected')].map(c => c.dataset.v);
+    }
+    const otherInput = document.querySelector(`[data-other="${q}"]`);
+    if (otherInput) {
+      if (answers[q]?.includes('other')) { otherInput.classList.add('visible'); otherInput.focus(); }
+      else { otherInput.classList.remove('visible'); }
+    }
+  });
+});
+
+document.querySelectorAll('.scale-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const row = opt.closest('.scale-row');
+    row.querySelectorAll('.scale-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    answers[row.dataset.q] = opt.dataset.v;
+  });
+});
+
+function finish() {
+  document.querySelectorAll('.text-input[data-q]').forEach(input => {
+    if (input.value.trim()) answers[input.dataset.q] = input.value.trim();
+  });
+  document.querySelectorAll('.chip-other-input').forEach(input => {
+    const q = input.dataset.other;
+    if (input.value.trim() && answers[q]?.includes('other')) {
+      answers[q] = answers[q].filter(v => v !== 'other');
+      answers[q].push(input.value.trim());
+    }
+  });
+  goTo(11);
+}
+
+function copyResults() {
+  const lines = ['Hey! Here are my survey answers:\n'];
+  const labels = {
+    health_tools: 'Health/fitness tools', prod_tools: 'Calendar/notes/email',
+    ecosystem: 'Ecosystem', ecosystem_pain: 'Cross-ecosystem pain',
+    ai_tools: 'AI assistants',
+    context_effort: 'How much I explain to AI (1=none, 5=everything)',
+    interest_level: 'On/off personal context for AI (1=meh, 5=need it)',
+    first_ask: 'First thing I\'d ask AI with context',
+    connect_willingness: 'Would connect apps for better AI (1=no, 5=yes)',
+    trust_factors: 'What matters for trust',
+    open_text: 'Other thoughts', name: 'Name', contact: 'Contact',
+  };
+  for (const [k, label] of Object.entries(labels)) {
+    const v = answers[k];
+    if (!v) continue;
+    lines.push(`${label}: ${Array.isArray(v) ? v.join(', ') : v}`);
+  }
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('toast').classList.add('show');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    document.getElementById('toast').classList.add('show');
+  });
+}
+</script>
+</body>
+</html>
