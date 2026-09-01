@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quick Survey — Your Digital Life</title>
+<title>Quick Survey - Your Digital Life</title>
 <style>
   :root {
     --bg: #faf7f2;
@@ -218,8 +218,8 @@
 
   <div class="step" data-step="2">
     <div class="step-number">2 of 10</div>
-    <h2>Where do your calendar, notes, and emails live?</h2>
-    <p class="subtext">All the apps where your plans and thoughts end up.</p>
+    <h2>Where do all your plans and thoughts live?</h2>
+    <!-- <p class="subtext">All the apps where your plans and thoughts end up.</p> -->
     <div class="chip-grid" data-q="prod_tools">
       <div class="chip" data-v="Google Calendar">Google Calendar</div>
       <div class="chip" data-v="Apple Calendar">Apple Calendar</div>
@@ -239,20 +239,20 @@
 
   <div class="step" data-step="3">
     <div class="step-number">3 of 10</div>
-    <h2>Which world do you mostly live in?</h2>
-    <p class="subtext">Your phone, laptop, cloud — the big picture.</p>
+    <h2>What ecosystem do you mostly live in?</h2>
+    <p class="subtext">Your phone, laptop, cloud: the big picture.</p>
     <div class="chip-grid" data-q="ecosystem" data-mode="single">
       <div class="chip" data-v="Mostly Apple">Mostly Apple</div>
       <div class="chip" data-v="Mostly Google">Mostly Google</div>
       <div class="chip" data-v="Mostly Microsoft">Mostly Microsoft</div>
-      <div class="chip" data-v="Mixed — a bit of everything">Mixed</div>
+      <div class="chip" data-v="Mixed: a bit of everything">Mixed</div>
     </div>
     <h2 style="font-size:18px;margin-top:4px">Does juggling between different ecosystems annoy you?</h2>
     <div class="chip-grid" data-q="ecosystem_pain" data-mode="single" style="margin-top:16px">
       <div class="chip" data-v="Yes, constantly">Yes, constantly</div>
       <div class="chip" data-v="Sometimes">Sometimes</div>
       <div class="chip" data-v="Not really">Not really</div>
-      <div class="chip" data-v="I stay in one ecosystem">I stay in one</div>
+      <div class="chip" data-v="I stay in one ecosystem">Nah, I stay in one ecosystem</div>
     </div>
     <div class="btn-row">
       <button class="btn btn-back" onclick="goTo(2)">Back</button>
@@ -263,13 +263,13 @@
   <div class="step" data-step="4">
     <div class="step-number">4 of 10</div>
     <h2>Do you use any AI assistants?</h2>
-    <p class="subtext">For anything — work, personal, curiosity.</p>
+    <p class="subtext">For anything: work, personal, curiosity.</p>
     <div class="chip-grid" data-q="ai_tools">
       <div class="chip" data-v="ChatGPT">ChatGPT</div>
       <div class="chip" data-v="Claude">Claude</div>
       <div class="chip" data-v="Gemini">Gemini</div>
       <div class="chip" data-v="Copilot">Copilot</div>
-      <div class="chip" data-v="Siri / Google Assistant">Siri / Google</div>
+      <!-- <div class="chip" data-v="Siri / Google Assistant">Siri / Google</div> -->
       <div class="chip" data-v="Not really">Not really</div>
       <div class="chip" data-v="other">Other</div>
     </div>
@@ -282,7 +282,7 @@
 
   <div class="step" data-step="5">
     <div class="step-number">5 of 10</div>
-    <h2>When you ask AI something personal — about your day, health, or plans — how much backstory do you end up giving?</h2>
+    <h2>When you ask AI something personal - about your day, health, or plans - how much backstory do you end up giving?</h2>
     <div class="scale-row" data-q="context_effort">
       <div class="scale-option" data-v="1">1</div>
       <div class="scale-option" data-v="2">2</div>
@@ -299,7 +299,7 @@
 
   <div class="step" data-step="6">
     <div class="step-number">6 of 10</div>
-    <h2>What if you could flip a switch and give your AI a factual summary of your health, schedule, and goals — not raw data — and turn it off whenever you want?</h2>
+    <h2>What if you could flip a switch and give your AI a factual summary of your health, schedule, and goals - not raw data - and turn it off whenever you want?</h2>
     <div class="scale-row" data-q="interest_level">
       <div class="scale-option" data-v="1">1</div>
       <div class="scale-option" data-v="2">2</div>
@@ -307,7 +307,7 @@
       <div class="scale-option" data-v="4">4</div>
       <div class="scale-option" data-v="5">5</div>
     </div>
-    <div class="scale-labels"><span>Meh</span><span>Need this yesterday</span></div>
+    <div class="scale-labels"><span>Meh---</span><span>Needed this yesterday!!!</span></div>
     <div class="btn-row">
       <button class="btn btn-back" onclick="goTo(5)">Back</button>
       <button class="btn btn-primary" onclick="goTo(7)">Next</button>
@@ -343,7 +343,7 @@
       <div class="scale-option" data-v="4">4</div>
       <div class="scale-option" data-v="5">5</div>
     </div>
-    <div class="scale-labels"><span>No way</span><span>Already looking for this</span></div>
+    <div class="scale-labels"><span>No fkn wayyyyyyy</span><span>Already looking for this</span></div>
     <div class="btn-row">
       <button class="btn btn-back" onclick="goTo(7)">Back</button>
       <button class="btn btn-primary" onclick="goTo(9)">Next</button>
@@ -355,7 +355,7 @@
     <h2>What would need to be true for you to feel comfortable sharing personal data with an AI?</h2>
     <p class="subtext">Pick everything that matters.</p>
     <div class="chip-grid" data-q="trust_factors">
-      <div class="chip" data-v="Kill switch — turn it off anytime">Kill switch — off anytime</div>
+      <div class="chip" data-v="Kill switch - turn it off anytime">Kill switch - off anytime</div>
       <div class="chip" data-v="AI gets a summary, never raw data">Summary only, never raw data</div>
       <div class="chip" data-v="I see exactly what AI receives">I see what AI sees</div>
       <div class="chip" data-v="I can delete everything with one click">Delete everything, one click</div>
@@ -370,9 +370,9 @@
 
   <div class="step" data-step="10">
     <div class="step-number">10 of 10</div>
-    <h2>Last one — anything on your mind?</h2>
+    <h2>Last one - anything on your mind?</h2>
     <p class="subtext">What frustrates you about your apps not talking to each other? Anything you wish AI could do better?</p>
-    <textarea class="text-input" data-q="open_text" rows="3" placeholder="Optional — say whatever comes to mind"></textarea>
+    <textarea class="text-input" data-q="open_text" rows="3" placeholder="Optional - say whatever comes to mind"></textarea>
     <h2 style="margin-top:8px">Want to stay in the loop?</h2>
     <p class="subtext">If I end up building something, I'll share it with you first.</p>
     <input class="text-input" data-q="name" placeholder="Your name" />
@@ -387,7 +387,7 @@
     <div class="finish-card">
       <div style="font-size:48px;margin-bottom:12px">&#10003;</div>
       <h2>Thank you!</h2>
-      <p>Your answers are saved. This genuinely helps — I'll share what comes of it.</p>
+      <p>Your answers are saved. This genuinely helps - I'll share what comes of it.</p>
     </div>
   </div>
 </div>
