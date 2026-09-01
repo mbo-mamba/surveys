@@ -387,9 +387,7 @@
     <div class="finish-card">
       <div style="font-size:48px;margin-bottom:12px">&#10003;</div>
       <h2>Thank you!</h2>
-      <p>This genuinely helps. I'll share what comes of it.</p>
-      <button class="btn-share" onclick="copyResults()">Copy answers to send to me</button>
-      <div class="copied-toast" id="toast">Copied! Send it my way.</div>
+      <p>Your answers are saved. This genuinely helps — I'll share what comes of it.</p>
     </div>
   </div>
 </div>
@@ -450,6 +448,9 @@ document.querySelectorAll('.scale-option').forEach(opt => {
   });
 });
 
+// REPLACE THIS with your Google Apps Script web app URL
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwSA4oX7RSNWJSDuKfMDtLtH7B66KA30GQTZ2rwmsKOaQnuQqv-IrINxIVl7WYgUqoR/exec';
+
 function finish() {
   document.querySelectorAll('.text-input[data-q]').forEach(input => {
     if (input.value.trim()) answers[input.dataset.q] = input.value.trim();
@@ -461,36 +462,25 @@ function finish() {
       answers[q].push(input.value.trim());
     }
   });
-  goTo(11);
-}
 
-function copyResults() {
-  const lines = ['Hey! Here are my survey answers:\n'];
-  const labels = {
-    health_tools: 'Health/fitness tools', prod_tools: 'Calendar/notes/email',
-    ecosystem: 'Ecosystem', ecosystem_pain: 'Cross-ecosystem pain',
-    ai_tools: 'AI assistants',
-    context_effort: 'How much I explain to AI (1=none, 5=everything)',
-    interest_level: 'On/off personal context for AI (1=meh, 5=need it)',
-    first_ask: 'First thing I\'d ask AI with context',
-    connect_willingness: 'Would connect apps for better AI (1=no, 5=yes)',
-    trust_factors: 'What matters for trust',
-    open_text: 'Other thoughts', name: 'Name', contact: 'Contact',
-  };
-  for (const [k, label] of Object.entries(labels)) {
-    const v = answers[k];
-    if (!v) continue;
-    lines.push(`${label}: ${Array.isArray(v) ? v.join(', ') : v}`);
+  // Flatten arrays to comma-separated strings for the spreadsheet
+  const row = {};
+  for (const [k, v] of Object.entries(answers)) {
+    row[k] = Array.isArray(v) ? v.join(', ') : v;
   }
-  const text = lines.join('\n');
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('toast').classList.add('show');
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    document.getElementById('toast').classList.add('show');
-  });
+  row.submitted_at = new Date().toISOString();
+
+  // Send to Google Sheets
+  if (SHEET_URL !== 'https://script.google.com/macros/s/AKfycbwSA4oX7RSNWJSDuKfMDtLtH7B66KA30GQTZ2rwmsKOaQnuQqv-IrINxIVl7WYgUqoR/exec') {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(row),
+    });
+  }
+
+  goTo(11);
 }
 </script>
 </body>
